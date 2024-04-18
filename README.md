@@ -16,7 +16,7 @@
 
 
 <div style="text-align: center">
-<img src="demo/teaser.png"  />
+<img src="teaser_compress.png"  />
 </div>
 
 
