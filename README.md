@@ -27,12 +27,11 @@ For more information, please visit our [**project page**](https://physcene.githu
 
 ## Citation
 If you find our work useful in your research, please consider citing:
-
-<!-- ```
-@article{geng2022gapartnet,
-  title={GAPartNet: Cross-Category Domain-Generalizable Object Perception and Manipulation via Generalizable and Actionable Parts},
-  author={Geng, Haoran and Xu, Helin and Zhao, Chengyang and Xu, Chao and Yi, Li and Huang, Siyuan and Wang, He},
-  journal={arXiv preprint arXiv:2211.05272},
-  year={2022}
-}
-``` -->
+```
+@inproceedings{yang2024physcene,
+          title={PhyScene: Physically Interactable 3D Scene Synthesis for Embodied AI},
+          author={Yang, Yandan and Jia, Baoxiong and Zhi, Peiyuan and Huang, Siyuan},
+          booktitle={Proceedings of Conference on Computer Vision and Pattern Recognition (CVPR)},
+          year={2024}
+        }
+```
