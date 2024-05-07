@@ -1,0 +1,143 @@
+name: scene_synthesis
+
+path_to_pickled_3d_futute_models: "data/pickled_data/threed_future_model_diningroom.pkl"
+
+train:
+  splits: ["train", "val"]
+  batch_size: 128
+  num_workers: 4
+  num_epochs: 150000
+  log_step: 100
+  log_epoch: 1
+  save_frequency: 2000
+  max_grad_norm: 10
+  # optimizer
+  optimizer: Adam
+  weight_decay: 0.0
+  # schedule
+  schedule: 'step'
+  lr: 0.0002
+  lr_step: 20000
+  lr_decay: 0.5
+
+
+test:
+  splits: ["test"]
+  batch_size: 128
+  num_workers: 0
+  frequency: 10
+
+## dataset
+dataset:
+  name: ThreedFront
+  max_length: 21
+  class_num: 25 #21 original +1 empty
+  use_feature: true
+  feature_dim: 32
+  desc: '[ThreedFront] -- dataset used for scene synthesis'
+  frame_interval_train: 1 
+  frame_interval_test: 10
+  use_color: true
+  use_normal: false
+  room_side: 6.2
+  dataset_filtering: threed_front_diningroom
+  dataset_type: "threedfront_objfeats_lat32"
+  encoding_type: "diffusion_cosin_angle_objfeatsnorm_wocm_lat32" 
+  annotation_file: "configs/data/diningroom_threed_front_splits.csv"
+  path_to_invalid_scene_ids: "configs/data/invalid_threed_front_rooms.txt"
+  path_to_invalid_bbox_jids: "configs/data/black_list.txt"
+  augmentations:  ["rotations"] #["rotations","flip"]  #["fixed_rotations"] #["rotations","flip"] 
+  filter_fn: "threed_front_diningroom" #"no_filtering"
+  train_stats: "data/preprocessed_data/DiningRoom/dataset_stats.txt"
+  path_to_bounds: "data/bounds.npz"
+  room_layout_size: "64,64"
+  path_to_room_masks_dir: "data/room_mask"
+  without_lamps: false
+  # use_normalize: true
+
+## for visualization
+visualizer:
+  name: SceneVisualizer
+  vis_case_num: 32 # default is 32
+  ksample: 1 # sample k case in each case
+  vis_denoising: false # visualize denoising process
+  save_mesh: false
+  ## visualization config used in training
+  visualize: true
+  interval: 1
+  window_size : "256,256" #"512,512"
+  up_vector : "0,0,-1" #"0,1,0"
+  camera_target : "0.0,0.0,0.0"
+  camera_position :  "0,15,0"
+  light : "-0.10923499,1.9325259,-7.19009"
+  # background: "0,0,0,1" #"0.5,0.5,0.5,0.5" # "0,0,0,1"
+  with_rotating_camera: false
+  n_frames: 360
+  save: true
+
+## for quantitative evaluation
+evaluator:
+  name: SceneCKLEval
+  eval_in_train: true
+  ksample: 1000 # sample k case in each case
+  ## evaluation config
+  interval: 2000
+  log_step: 100
+  n_synthesized_scenes: 1000
+  CKL_In_train: true
+  weight_file: "outputs/diningroom_new_1120/model_98000"
+
+  
+
+network:
+    type: "diffusion_scene_layout_ddpm"
+    # denoising network
+    net_type: "unet1d"
+
+    # concate squarewish layer
+    point_dim: 65 
+    latent_dim: 512 #room_mask dim
+    room_mask_condition: true # use room_mask 
+    sample_num_points: 21 # max_length 
+
+    objectness_dim: 0
+    class_dim: 25  #24+1
+    angle_dim: 2 
+    objfeat_dim: 32 #64
+
+    # class condition
+    learnable_embedding: true
+    instance_condition: true
+    instance_emb_dim: 128
+    # class_condition: false
+    # class_emb_dim: 128
+
+    # diffusion config
+    diffusion_kwargs:
+        schedule_type: 'linear'
+        beta_start: 0.0001
+        beta_end: 0.02
+        time_num: 1000 
+        loss_type: 'mse'
+        model_mean_type: 'eps'
+        model_var_type: 'fixedsmall'
+        loss_separate: true
+        loss_iou: true
+        train_stats_file: "data/preprocessed_data/DiningRoom/dataset_stats.txt"
+
+
+    net_kwargs:
+        dim: 512
+        dim_mults: [1, 1, 1, 1]
+        channels: 65 
+        objectness_dim: 0
+        class_dim: 25
+        angle_dim: 2
+        objfeat_dim: 32
+        context_dim: 512 #512
+        instanclass_dim: 128 
+        seperate_all: true  
+        # self_condition: true
+        # merge_bbox: true 
+        # modulate_time_context_instanclass: true
+        

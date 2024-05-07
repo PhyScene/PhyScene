@@ -1,0 +1,37 @@
+
+hydra:
+  run:
+    dir: debug
+  output_subdir: null
+
+defaults:
+  - _self_
+  - obj_autoencoder: bed_living_diningrooms_lat32
+
+output_directory: autoencoder_output
+weight_file:  null
+# weight_file: "/home/yandan/workspace/PhyScene/autoencoder_output/debug/model_02900"
+continue_epoch: 0
+experiment_tag: debug   #"Tag that refers to the current experiment"
+
+
+n_processes: 0
+seed: 27
+with_wandb_logger: True
+
+BASE_DIR: /home/yandan/workspace/PhyScene
+PATH_TO_SCENES: "data/threed_front.pkl"    
+3DFRONT_dir: /home/yandan/dataset/3D-scene
+dataset:
+# for object autoencoder
+  path_to_3d_front_dataset_directory: ${3DFRONT_dir}/3D-FRONT
+  path_to_3d_future_dataset_directory: ${3DFRONT_dir}/3D-FUTURE-model
+  path_to_models : ${3DFRONT_dir}/3D-FUTURE-model
+  path_to_model_info: ${3DFRONT_dir}/3D-FUTURE-model/model_info.json
+
+
+GAPartNet:
+  pickled_GPN_dir: "/home/yandan/workspace/GAPartNet/dataset"
+  GPN_open_ratio: ${BASE_DIR}/data/GPN_open_ratio.json
+  path_to_models: "/home/yandan/dataset/partnet_mobility_part/"
+  ID_PATH: '/home/yandan/workspace/GAPartNet/dataset/render_tools/meta/partnet_all_id_list.txt'

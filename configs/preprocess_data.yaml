@@ -1,0 +1,41 @@
+hydra:
+  run:
+    dir: debug
+  output_subdir: null
+
+defaults:
+  - _self_
+  - task: scene_diningroom #scene_bedroom #scene_livingroom #scene_diningroom
+  - visualizer: topdown
+
+output_directory: debug
+
+no_texture: false
+without_floor: false
+add_objfeats: true
+
+BASE_DIR: /home/yandan/workspace/PhyScene
+PATH_TO_SCENES: "data/threed_front.pkl"     
+
+3DFRONT_dir: /home/yandan/dataset/3D-scene
+path_to_floor_plan_textures: ${3DFRONT_dir}/3D-FRONT-texture/
+dataset:
+# for object autoencoder
+  dataset_directory: ${3DFRONT_dir}/3D-FRONT/
+  path_to_3d_front_dataset_directory: ${3DFRONT_dir}/3D-FRONT
+  path_to_3d_future_dataset_directory: ${3DFRONT_dir}/3D-FUTURE-model
+  path_to_models : ${3DFRONT_dir}/3D-FUTURE-model
+  path_to_model_info: ${3DFRONT_dir}/3D-FUTURE-model/model_info.json
+  
+ai2thor:
+  path_to_ai2thor: "/home/yandan/workspace/ai2thor/ExportedObj-good"
+  path_to_center_info: /home/yandan/workspace/PhyScene/ai2thor/center.json
+  path_to_mask: /home/yandan/workspace/PhyScene/ai2thor/mask
+  path_to_result: /home/yandan/workspace/PhyScene/ai2thor/generate
+  path_to_json: "/home/yandan/workspace/ai2thor/House_Json"
+
+GAPartNet:
+  pickled_GPN_dir: "/home/yandan/workspace/GAPartNet/dataset"
+  GPN_open_ratio: "/home/yandan/workspace/Scene-Diffuser-New/data/GPN_open_ratio.json"
+  path_to_models: "/home/yandan/dataset/partnet_mobility_part/"
+  ID_PATH: '/home/yandan/workspace/GAPartNet/dataset/render_tools/meta/partnet_all_id_list.txt'

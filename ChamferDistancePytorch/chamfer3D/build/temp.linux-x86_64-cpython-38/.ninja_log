@@ -1,0 +1,7 @@
+# ninja log v5
+0	6125	1686117007606825103	/home/yandan/workspace/DiffuScene/ChamferDistancePytorch/chamfer3D/build/temp.linux-x86_64-cpython-38/chamfer3D.o	3f686af0f396da9a
+0	8691	1686117010166981990	/home/yandan/workspace/DiffuScene/ChamferDistancePytorch/chamfer3D/build/temp.linux-x86_64-cpython-38/chamfer_cuda.o	7b9adc273ce199d4
+7	6725	1686120850171856867	/home/yandan/workspace/DiffuScene/ChamferDistancePytorch/chamfer3D/build/temp.linux-x86_64-cpython-38/chamfer3D.o	208e5f013682257d
+7	10021	1686120853463970538	/home/yandan/workspace/DiffuScene/ChamferDistancePytorch/chamfer3D/build/temp.linux-x86_64-cpython-38/chamfer_cuda.o	f9846aa65b3750d3
+1	7423	1696514687330272914	/home/yandan/workspace/DiffuScene_save/ChamferDistancePytorch/chamfer3D/build/temp.linux-x86_64-cpython-38/chamfer3D.o	ccca317a48e62a72
+1	10908	1696514690806319956	/home/yandan/workspace/DiffuScene_save/ChamferDistancePytorch/chamfer3D/build/temp.linux-x86_64-cpython-38/chamfer_cuda.o	d363e685522d8ec1

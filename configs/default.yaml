@@ -1,0 +1,87 @@
+hydra:
+  run:
+    dir: ${exp_dir}
+  output_subdir: null
+
+defaults:
+  - _self_
+  - task: scene_livingroom 
+  - optimizer: null
+
+output_dir: outputs
+exp_name: debug 
+
+continue_train: false
+continue_epoch: 0
+continue_from_weight: null
+
+exp_dir: ${output_dir}/${now:%m-%d_%H-%M-%S}_${exp_name}
+tb_dir: ${exp_dir}/tb_logs
+vis_dir: ${exp_dir}/visual
+ckpt_dir: ${exp_dir}/ckpts
+
+gpu: 0
+
+## for saving model
+save_model_interval: 2000
+save_model_seperately: true
+save_scene_model: false # save scene model or not
+
+feature_extractor:
+    name: "resnet18"
+    freeze_bn: true
+    input_channels: 1
+    feature_size: 64
+
+clip_denoised: false
+
+
+BASE_DIR: /home/yandan/workspace/PhyScene
+PATH_TO_SCENES: "data/threed_front.pkl"     
+
+3DFRONT_dir: /home/yandan/dataset/3D-scene
+path_to_floor_plan_textures: "demo/floor_plan_texture_images"
+no_texture: false
+dataset:
+# for object autoencoder
+  dataset_directory: ${3DFRONT_dir}/3D-FRONT/
+  path_to_3d_front_dataset_directory: ${3DFRONT_dir}/3D-FRONT
+  path_to_3d_future_dataset_directory: ${3DFRONT_dir}/3D-FUTURE-model
+  path_to_models : ${3DFRONT_dir}/3D-FUTURE-model
+  path_to_model_info: ${3DFRONT_dir}/3D-FUTURE-model/model_info.json
+  
+ai2thor:
+  path_to_ai2thor: /home/yandan/workspace/ai2thor/ExportedObj-room-rightxyz #_blender_convert
+  path_to_center_info: /home/yandan/workspace/PhyScene/ai2thor/center.json
+  path_to_mask: /home/yandan/workspace/PhyScene/ai2thor/mask
+  path_to_result: /home/yandan/workspace/PhyScene/ai2thor/generate_bbox
+
+ThreeDFRONT:
+  path_to_result: /home/yandan/workspace/PhyScene/3D_front/generate_filterGPN_clean
+
+
+GAPartNet:
+  pickled_GPN_dir: "/home/yandan/workspace/GAPartNet/dataset"
+  GPN_open_ratio: "/home/yandan/workspace/Scene-Diffuser-New/data/GPN_open_ratio.json"
+  GPN_good_idx: "/home/yandan/workspace/Scene-Diffuser-New/data/GPN_good_idx.json"
+  path_to_models: "/home/yandan/dataset/partnet_mobility_part/"
+  ID_PATH: '/home/yandan/workspace/GAPartNet/dataset/render_tools/meta/partnet_all_id_list.txt'
+
+
+logger:
+    type: "wandb"
+    project: "diffuscene"
+
+evaluation:
+  overlap_type: "rotated_bbox"
+  generate_result_json: true
+  gapartnet: true
+  jsonname: "debug.json"
+  load_result: false
+  save_result: true
+  visual: false
+  render2img: false
+  without_floor: false
+  save_mesh: false
+  save_walkable_map: false
+  render_save_path: "result_render/debug"

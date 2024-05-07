@@ -1,0 +1,25 @@
+name: CollisionOptimizer
+
+scale: 1.0
+scale_type: 'div_var' # ['normal', 'div_var']
+
+collision: true
+collision_weight: 1
+collision_type: "bbox_IOU"   #["bbox_IOU","mesh_occupancy"]
+clip_grad_by_value:
+  min: -0.1
+  max: 0.1
+
+guidance: 
+  collision: true
+  weight_coll: 2
+  open: false
+
+  room_layout: false
+  weight_room: 300000
+
+  reachability: false
+  weight_reach: 100
+  robot_width_real: 0.2 
+  robot_hight_real: 1.5
+
