@@ -61,7 +61,7 @@ python synthetic_vs_real_classifier.py --path_to_real_renderings data/preprocess
 python compute_fid_scores.py --path_to_real_renderings data/preprocessed_data/LivingRoom/ --path_to_synthesized_renderings your/generated/image/folder
 ```
 
-## 🏡 Test Procthor Foor Plan
+## 🏡 Test Procthor Floor Plan
 We also provide scripts for generating scenes from an unseen floor plan, such as room in ProTHOR.
 This script generate scene layout without reliance on any dataset, which provides a lite solution for user to apply on their own furniture dataset.
 See [Procthor.md](Procthor.md) for more details.
@@ -69,7 +69,7 @@ See [Procthor.md](Procthor.md) for more details.
 ## ⏱️ Modules 
 - [x] Base Model 
 - [ ] Training scripts
-- [ ] Proprossed datasets
+- [ ] Preprossed datasets
 - [ ] Pretrained models
 - [ ] Tutorial.ipynb 
 
