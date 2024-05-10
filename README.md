@@ -4,10 +4,10 @@
   <b><i>CVPR 2024 Highlight </i> ⭐</b>
 
   <div align="center" margin-bottom="6em">
-  <a target="_blank" href="https://scholar.google.com/citations?user=H6OwSzsAAAAJ">Yandan Yang<sup>✶</sup></a>,
-  <a target="_blank" href="https://buzz-beater.github.io/">Baoxiong Jia<sup>✶</sup></a>,
-  <a target="_blank" href="">Peiyuan Zhi</a>,
-  <a target="_blank" href="https://siyuanhuang.com/">Siyuan Huang</a>
+  <a target="_blank" href="https://scholar.google.com/citations?user=H6OwSzsAAAAJ" style="font-size:0.7em">Yandan Yang<sup>✶</sup></a>,
+  <a target="_blank" href="https://buzz-beater.github.io/" style="font-size:0.7em">Baoxiong Jia<sup>✶</sup></a>,
+  <a target="_blank" href="" style="font-size:0.7em">Peiyuan Zhi</a>,
+  <a target="_blank" href="https://siyuanhuang.com/" style="font-size:0.7em">Siyuan Huang</a>
 
 </div>
 
