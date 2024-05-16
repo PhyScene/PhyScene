@@ -2,8 +2,15 @@
   <b>PhyScene: Physically Interactable 3D Scene Synthesis for Embodied AI</b>
 
   <b><i>CVPR 2024 Highlight </i> ⭐</b>
+</h2>
+ <div align="center" margin-bottom="6em">
+  <a target="_blank" href="https://scholar.google.com/citations?user=H6OwSzsAAAAJ">Yandan Yang<sup>✶</sup></a>,
+  <a target="_blank" href="https://buzz-beater.github.io/">Baoxiong Jia<sup>✶</sup></a>,
+  <a target="_blank" href="">Peiyuan Zhi</a>,
+  <a target="_blank" href="https://siyuanhuang.com/">Siyuan Huang</a>
 
-
+</div>
+<br>
 <div align="center">
     <!-- <a href="https://cvpr.thecvf.com/virtual/2023/poster/22552" target="_blank"> -->
     <a>
@@ -13,8 +20,7 @@
     <a href="https://physcene.github.io" target="_blank">
       <img src="https://img.shields.io/badge/Page-PhyScene-blue" alt="Project Page"/></a>
 </div>
-</h2>
-
+<br>
 <div style="text-align: center">
 <img src="demo/teaser.png"  />
 </div>
@@ -89,7 +95,4 @@ If you find our work useful in your research, please consider citing:
 
 
 ## 👋🏻 Acknowledgements
-Most of the code is borrowed from [ATISS](https://github.com/nv-tlabs/ATISS) and [DiffuScene](https://github.com/tangjiapeng/DiffuScene). We thank for their great works and repos.
-
-We thank Ms. Zhen Chen from BIGAI for refining the figures, and all colleagues from the
-BIGAI TongVerse project for fruitful discussions and help on simulation developments.
+The code of this project is adapted from [ATISS](https://github.com/nv-tlabs/ATISS) and [DiffuScene](https://github.com/tangjiapeng/DiffuScene), we sincerely thank the authors for open-sourcing their awesome projects. We also thank Ms. Zhen Chen from BIGAI for refining the figures, and all colleagues from the BIGAI TongVerse project for fruitful discussions and help on simulation developments.
