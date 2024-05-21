@@ -98,7 +98,7 @@ def main(cfg: DictConfig) -> None:
     network.eval()
 
     classes = np.array(dataset.class_labels)
-    vis = True
+    vis = False
     evaluate(network,dataset,config,raw_dataset,dataset,device,vis=vis)
     return 
 
@@ -107,21 +107,16 @@ def evaluate(network,dataset,cfg,raw_dataset,ground_truth_scenes,device,vis:True
     print('class labels:', classes, len(classes))
     synthesized_scenes = []
     batch_size = 128
-    if vis:
-        # Build the dataset of 3D models
-        objects_dataset = ThreedFutureDataset.from_pickled_dataset(
-            cfg.task.path_to_pickled_3d_futute_models
-        )
-        print("Loaded {} 3D-FUTURE models".format(len(objects_dataset)))
+    
+    # Build the dataset of 3D models
+    objects_dataset = ThreedFutureDataset.from_pickled_dataset(
+        cfg.task.path_to_pickled_3d_futute_models
+    )
+    print("Loaded {} 3D-FUTURE models".format(len(objects_dataset)))
 
     path_to_center_info = cfg.ai2thor.path_to_center_info
     with open(path_to_center_info,"r") as f:
         center_info = json.load(f)
-
-    # Build the dataset of Garpartnet
-    # pickled_GPN_dir = cfg.GAPartNet.pickled_GPN_dir
-    # pickled_GPN_path = "{}/gapartnet_model.pkl".format(pickled_GPN_dir)
-    # gapartnet_dataset = GAPartNetDataset.from_pickled_dataset(pickled_GPN_path)
 
     pickled_GPN_dir = cfg.GAPartNet.pickled_GPN_dir
     pickled_GPN_path = "{}/gapartnet_model_good_idx.pkl".format(pickled_GPN_dir)
@@ -172,7 +167,7 @@ def evaluate(network,dataset,cfg,raw_dataset,ground_truth_scenes,device,vis:True
             #     obj_name = good_room[idx]
             else:
                 break
-            # obj_name = "House_8942/room_4.obj"
+            # obj_name = "House_35/room_7.obj"
             roomType = center_info[obj_name]["roomType"]
             filter_fn = cfg.task.dataset.filter_fn
             if filter_fn =="threed_front_diningroom":
@@ -300,13 +295,13 @@ def evaluate(network,dataset,cfg,raw_dataset,ground_truth_scenes,device,vis:True
             # print("box_wall_rate ",box_wall_rate)
             # print("walkable_average_rate ",walkable_average_rate)
             # print("accessable_rate ",accessable_rate)
-            export_scene_info(boxes,dataset,cfg,center_info, mask_name_lst, s)
-            if vis:
-                # show_scene(box_scene,objects_dataset,dataset,cfg,floor_plan_lst[s:s+1],None,room_outer_box[s:s+1],gapartnet_dataset,mask_name_lst[s:s+1])
-                show_scene(box_scene,objects_dataset,dataset,cfg,floor_plan_lst[s:s+1],None,door_boxes,gapartnet_dataset,mask_name_lst[s:s+1])
+            
+            export_scene_info(boxes,dataset,cfg,center_info, mask_name_lst, floor_plan_lst, s, objects_dataset, gapartnet_dataset,retrieve=True,vis=vis)
+           
+            
     return 
 
-def export_scene_info(boxes,dataset,cfg,center_info, mask_name_lst=[],idx=0):
+def export_scene_info(boxes,dataset,cfg,center_info, mask_name_lst=[],floor_plan_lst=[],idx=0, objects_dataset=None, gapartnet_dataset=None, retrieve=False,vis=False):
     bbox_params_t = torch.cat([
         boxes["class_labels"],
         boxes["translations"],
@@ -318,24 +313,42 @@ def export_scene_info(boxes,dataset,cfg,center_info, mask_name_lst=[],idx=0):
     classes = np.array(dataset.class_labels)
     roomtype = cfg.task.dataset.filter_fn.split("_")[-1]
     
-    # for i in range(bbox_params_t.shape[0]):
-    if True:
-        i = idx
-        bbox_param = bbox_params_t[i:i+1]
-        # # [1] retrieve objects
-        # renderables, trimesh_meshes, _,_ , scene_info = get_textured_objects(
-        #     bbox_param, objects_dataset, gapartnet_dataset, classes, cfg
-        # )
-        # path_to_json = "{}/{}".format(
-        #     cfg.ai2thor.path_to_result,
-        #     mask_name_lst[i][:-4]+"_"+roomtype+".json"
-        # )
-        # with open(path_to_json,"w") as f:
-        #     json.dump(scene_info,f,indent=4)
+    i = idx
+    bbox_param = bbox_params_t[i:i+1]
 
+    houseinfo = mask_name_lst[i][:-4].split("_")
+    House_number = "_".join(houseinfo[:2])
+
+    if retrieve:
+        # [1] retrieve objects
+        renderables, trimesh_meshes, _,_ , scene_info = get_textured_objects(
+            bbox_param, objects_dataset, gapartnet_dataset, classes, cfg
+        )
+        path_to_json = "{}/{}".format(
+            cfg.ai2thor.path_to_result,
+            mask_name_lst[i][:-4]+"_"+roomtype+".json"
+        )
+        print(path_to_json)
+        with open(path_to_json,"w") as f:
+            json.dump(scene_info,f,indent=4)
+
+        if vis:
+            floor_plan = floor_plan_lst[i]
+            import math
+            theta = math.pi*3/2
+            R = np.zeros((3, 3))
+            R[2, 2] = np.cos(theta)
+            R[2, 1] = -np.sin(theta)
+            R[1, 2] = np.sin(theta)
+            R[1, 1] = np.cos(theta)
+            R[0, 0] = 1.
+            floor_plan.affine_transform(R=R)
+            renderables += [floor_plan]
+            from scripts.eval.calc_ckl import show_renderables
+            show_renderables(renderables)
+
+    else:
         # [2] only compute bbox
-        houseinfo = mask_name_lst[i][:-4].split("_")
-        House_number = "_".join(houseinfo[:2])
         obj = "_".join(houseinfo[2:])+".obj"
         obj_name = f"{House_number}/{obj}"
 
@@ -362,7 +375,12 @@ def export_scene_info(boxes,dataset,cfg,center_info, mask_name_lst=[],idx=0):
         with open(path_to_json,"w") as f:
             json.dump(scene_info_bbox,f,indent=4)
 
-def show_scene(boxes,objects_dataset,dataset,cfg,floor_plan_lst,tr_floor,room_outer_box=None,gapartnet_dataset=None,mask_name_lst=[]):
+        if vis:
+            from generate_bbox import show_scene_bbox
+            show_scene_bbox(scene_info_bbox,floor_plan_lst[i:i+1])
+
+def show_scene(boxes,objects_dataset,dataset,cfg,floor_plan_lst,tr_floor, return_bbox=True,
+               without_floor=False, room_outer_box=None,gapartnet_dataset=None,mask_name_lst=[]):
     bbox_params_t = torch.cat([
         boxes["class_labels"],
         boxes["translations"],
@@ -379,27 +397,24 @@ def show_scene(boxes,objects_dataset,dataset,cfg,floor_plan_lst,tr_floor,room_ou
 
         houseinfo = mask_name_lst[i][:-4].split("_")
         House_number = "_".join(houseinfo[:2])
-
-        # [1] retrieve objects
-        renderables, trimesh_meshes, _,_ , scene_info = get_textured_objects(
-            bbox_param, objects_dataset, gapartnet_dataset, classes, cfg
-        )
         roomtype = cfg.task.dataset.filter_fn.split("_")[-1]
-        path_to_json = "{}/{}/{}".format(
-            cfg.ai2thor.path_to_result,
-            House_number,
-            mask_name_lst[i][:-4]+"_"+roomtype+".json"
-        )
-        with open(path_to_json,"w") as f:
-            json.dump(scene_info,f,indent=4)
+
+        # # [1] retrieve objects
+        if not return_bbox:
+            renderables, trimesh_meshes, _,_ , scene_info = get_textured_objects(
+                bbox_param, objects_dataset, gapartnet_dataset, classes, cfg
+            )
+           
+
         # [2] only compute bbox
-        # scene_info_bbox = get_bbox_objects(bbox_params_t, classes, cfg)
-        # path_to_json = "{}/{}".format(
-        #     cfg.ai2thor.path_to_result,
-        #     mask_name_lst[i][:-4]+"_"+roomtype+"_bbox.json"
-        # )
-        # with open(path_to_json,"w") as f:
-        #     json.dump(scene_info_bbox,f,indent=4)
+        else:
+            scene_info_bbox = get_bbox_objects(bbox_params_t, classes, cfg)
+            path_to_json = "{}/{}".format(
+                cfg.ai2thor.path_to_result,
+                mask_name_lst[i][:-4]+"_"+roomtype+"_bbox.json"
+            )
+            with open(path_to_json,"w") as f:
+                json.dump(scene_info_bbox,f,indent=4)
 
         
         if room_outer_box != None:
@@ -427,8 +442,7 @@ def show_scene(boxes,objects_dataset,dataset,cfg,floor_plan_lst,tr_floor,room_ou
             renderables += render_boxes
         
 
-        # if not without_floor:
-        floor_plan = floor_plan_lst[i]
+        
         import math
         theta = math.pi*3/2
         R = np.zeros((3, 3))
@@ -438,9 +452,12 @@ def show_scene(boxes,objects_dataset,dataset,cfg,floor_plan_lst,tr_floor,room_ou
         R[1, 1] = np.cos(theta)
         R[0, 0] = 1.
         # Apply the transformations in order to correctly position the mesh
-        floor_plan.affine_transform(R=R)
+        
 
-        if True:
+        if not without_floor:
+            # if not without_floor:
+            floor_plan = floor_plan_lst[i]
+            floor_plan.affine_transform(R=R)
             renderables += [floor_plan]
             # trimesh_meshes += tr_floor
 
@@ -464,7 +481,7 @@ def show_scene(boxes,objects_dataset,dataset,cfg,floor_plan_lst,tr_floor,room_ou
 
         
         save_mesh = False
-        if save_mesh:
+        if (not return_bbox) and save_mesh:
             if trimesh_meshes is not None:
                 # Create a trimesh scene and export it
                

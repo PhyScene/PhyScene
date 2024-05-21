@@ -27,3 +27,4 @@ torchtext==0.15.2
 num2words==0.5.12
 einops
 clip
+smplx

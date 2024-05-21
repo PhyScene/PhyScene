@@ -237,23 +237,15 @@ def calc_wall_overlap(synthesized_scenes, floor_plan_lst, floor_plan_centroid_li
         floor_plan = floor_plan_lst[i]
         floor_plan_centroid = floor_plan_centroid_list[i]
         valid_idx = d["objectness"][:,0]<0 #False
-        if cfg.task.dataset.use_feature:
-            class_labels = d["class_labels"]
-            bbox = np.concatenate([
-                        # d["class_labels"],
-                        d["translations"][valid_idx],
-                        d["sizes"][valid_idx],
-                        d["angles"][valid_idx],
-                        # d["objfeats_32"]
-                    ],axis=-1)
-        else:
-            class_labels = d["class_labels"]
-            bbox = np.concatenate([
-                        # d["class_labels"],
-                        d["translations"],
-                        d["sizes"],
-                        d["angles"]
-                    ],axis=-1)
+        class_labels = d["class_labels"][valid_idx]
+        bbox = np.concatenate([
+                    # d["class_labels"],
+                    d["translations"][valid_idx],
+                    d["sizes"][valid_idx],
+                    d["angles"][valid_idx],
+                    # d["objfeats_32"]
+                ],axis=-1)
+
             
         vertices, faces = floor_plan
         vertices = vertices - floor_plan_centroid

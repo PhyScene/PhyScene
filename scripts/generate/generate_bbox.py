@@ -348,24 +348,28 @@ def export_scene_info(boxes,dataset,cfg,center_info, mask_name_lst=[],idx=0):
     return scene_info_bbox
 
 
-def show_scene_bbox(scene_info_bbox,floor_plan_lst):
-    #floor plan mesh
-    floor_plan = floor_plan_lst[0]
+def show_scene_bbox(scene_info_bbox,floor_plan_lst=None):
+    
     import math
     import open3d as o3d
-    theta = math.pi*3/2
-    R = np.zeros((3, 3))
-    R[2, 2] = np.cos(theta)
-    R[2, 1] = -np.sin(theta)
-    R[1, 2] = np.sin(theta)
-    R[1, 1] = np.cos(theta)
-    R[0, 0] = 1.
-    floor_plan.affine_transform(R=R)
-    points,faces = floor_plan.to_points_and_faces()
-    mesh_floor_plan = o3d.geometry.TriangleMesh()
-    mesh_floor_plan.vertices = o3d.utility.Vector3dVector(points)
-    mesh_floor_plan.triangles = o3d.utility.Vector3iVector(faces)
-    mesh_floor_plan = o3d.t.geometry.TriangleMesh.from_legacy(mesh_floor_plan)
+    if floor_plan_lst:
+        theta = math.pi*3/2
+        R = np.zeros((3, 3))
+        R[2, 2] = np.cos(theta)
+        R[2, 1] = -np.sin(theta)
+        R[1, 2] = np.sin(theta)
+        R[1, 1] = np.cos(theta)
+        R[0, 0] = 1.
+        #floor plan mesh
+        floor_plan = floor_plan_lst[0]
+        floor_plan.affine_transform(R=R)
+        points,faces = floor_plan.to_points_and_faces()
+        mesh_floor_plan = o3d.geometry.TriangleMesh()
+        mesh_floor_plan.vertices = o3d.utility.Vector3dVector(points)
+        mesh_floor_plan.triangles = o3d.utility.Vector3iVector(faces)
+        mesh_floor_plan = o3d.t.geometry.TriangleMesh.from_legacy(mesh_floor_plan)
+    else:
+        mesh_floor_plan = None
 
     #visualize bboxes
     bboxes = []

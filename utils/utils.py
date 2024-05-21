@@ -104,9 +104,13 @@ def get_textured_objects(bbox_params_t, objects_dataset, gapartnet_dataset, clas
                     scene_info["ThreedFront"][furniture.model_jid]  =[]
                 scene_info["ThreedFront"][furniture.model_jid].append({"path":furniture.raw_model_path, \
                                                                 "scale": furniture.scale, \
+                                                                "size": furniture.size.tolist(), \
                                                                 "label": furniture.label, \
+                                                                "query_label": query_label, \
+                                                                "query_size": [float(s/2) for s in query_size.tolist()],\
                                                                 "theta": float(theta), \
-                                                                "position": (translation-centroid).tolist()})
+                                                                "position": (translation-centroid).tolist(),\
+                                                                "centroid": centroid.tolist()})
 
             elif data=="gpn" and not (gapartnet_dataset==None or query_label not in MapThreedfuture2gparnet):
                
@@ -118,6 +122,8 @@ def get_textured_objects(bbox_params_t, objects_dataset, gapartnet_dataset, clas
                     furniture = gapartnet_dataset.get_closest_furniture_to_box_normsize(
                         MapThreedfuture2gparnet[query_label], query_size
                     )
+                if furniture.model_jid == "22367":
+                    a = 1
                 scale = furniture.scale * query_size/furniture.size * 2
                 print("GPN ",furniture.label,furniture.model_jid)
                 furniture_names.append(furniture.label)
@@ -125,7 +131,8 @@ def get_textured_objects(bbox_params_t, objects_dataset, gapartnet_dataset, clas
                 # Compute the centroid of the vertices in order to match the
                 # bbox (because the prediction only considers bboxes)
                 bbox = furniture.bbox
-                centroid = (bbox[0] + bbox[1])/2
+                # centroid = (bbox[0] + bbox[1])/2
+                centroid = (bbox[0] + bbox[1])/2*scale
 
                 # Extract the predicted affine transformation to position the
                 # mesh
@@ -181,11 +188,16 @@ def get_textured_objects(bbox_params_t, objects_dataset, gapartnet_dataset, clas
                     renderables_remesh.append(RenderableCollection(GPN_renderables))
                 if furniture.model_jid not in scene_info["GPN"]:
                     scene_info["GPN"][furniture.model_jid]  =[]
+                #final size = query size = scale*size
                 scene_info["GPN"][furniture.model_jid].append({"path":furniture.raw_model_path, \
-                                                        "scale": scale.tolist(), \
+                                                        "scale": [float(s) for s in scale.tolist()], \
+                                                        "size": [float(s/2) for s in furniture.size], \
                                                         "label": furniture.label, \
+                                                        "query_label": query_label,\
+                                                        "query_size": [float(s) for s in query_size.tolist()],\
                                                         "theta": float(theta), \
-                                                        "position": (translation-centroid).tolist()})
+                                                        "position": (translation-centroid).tolist(), \
+                                                        "centroid": centroid.tolist()})
 
                 # for raw_model_path in furniture.raw_model_path:
                 #     # Load the furniture and scale it as it is given in the dataset
