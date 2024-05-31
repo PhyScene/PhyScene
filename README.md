@@ -73,9 +73,9 @@ See [Procthor.md](Procthor.md) for more details.
 
 ## ⏱️ Modules 
 - [x] Base Model 
+- [x] Preprossed datasets
+- [x] Pretrained models
 - [ ] Training scripts
-- [ ] Preprossed datasets
-- [ ] Pretrained models
 - [ ] Tutorial.ipynb 
 
 ## 🪧 Citation
