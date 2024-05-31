@@ -30,7 +30,7 @@ pip install kaolin==0.14.0 -f https://nvidia-kaolin.s3.us-east-2.amazonaws.com/t
 
 #### Modify simple_3dviz
 The assets have materials with informal uv map, which will cause error when loading mesh in simple_3dviz.
-You may need to modify a command line in  ```~/anaconda3/envs/physcene/lib/python3.8/site-packages/simple_3dviz/io/multi_mesh.py``` at ```line 153``` from:
+(1) You may need to modify a command line in  ```~/anaconda3/envs/physcene/lib/python3.8/site-packages/simple_3dviz/io/multi_mesh.py``` at ```line 153``` from:
 ```
 except IndexError:
     face_uv = np.zeros((len(face_vertices), 2))
@@ -39,4 +39,26 @@ to
 ```
 except:
     face_uv = np.zeros((len(face_vertices), 2))
+```
+
+(2) You may also need to modify a command line in  ```~/anaconda3/envs/physcene/lib/python3.8/site-packages/simple_3dviz/io/material.py``` at ```line 151``` from:
+```
+elif l.startswith("illum"):
+    material["mode"] = {
+        "0" : "constant",
+        "1" : "diffuse",
+        "2" : "specular"
+    }[l.split()[1]]
+```
+to
+```
+elif l.startswith("illum"):
+    modelst = {"0" : "constant",
+                "1" : "diffuse",
+                "2" : "specular"
+                }
+    if l.split()[1] in modelst:
+        material["mode"] = modelst[l.split()[1]]
+    else:
+        material["mode"] = "specular"
 ```
