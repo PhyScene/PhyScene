@@ -8,9 +8,13 @@ Download 3D FRONT and 3D FUTURE dataset with the instruction in [this website](h
 
 💻 Articulated object: We utilize articulated objects in **GAPartNet** dataset for the generated scene.
 
-Download GAPartNet dataset following the instructions in [this website](https://pku-epic.github.io/GAPartNet/).
+To download GAPartNet dataset, please fill out [this form](https://docs.google.com/forms/d/e/1FAIpQLSftYKN2O72MEgiFhJrn5xCRjArgVmBA6JK7xSkmlX9yfZhFxg/viewform?usp=sf_link).
 
 ### Preprocess data
+You can preprocess the data from scratch with the following steps. 
+
+Or you can download the preprocessed data [here](https://drive.google.com/file/d/1ilHSDaavfUN2Vxs-YaTx-EsBqG78Eper/view?usp=drive_link)
+
 #### Pickle scene & object dataset
 ```
 sh run/pickle_3dfuture_dataset.sh save_dir 
@@ -43,3 +47,4 @@ sh run/preprocess_data.sh save_dir
 ```
 You will get room info and rendered image in ```save_dir```.
 Here we set background color as gray for better visualization.
+

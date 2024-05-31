@@ -37,9 +37,7 @@ For more information, please visit our [**project page**](https://physcene.githu
 Check [INSTALL.md](INSTALL.md) for installation details.
                                                                                                           
 ## 🛒 Prepare Data                                                 
-You can refer to [DATA.md](DATA.md) to download the original datasets and preprocess the data from scratch.
-
-Or you can just download our preprocessed datasets (will release soon).
+You can refer to [DATA.md](DATA.md) to download the original datasets and preprocess the data.
 
 ## 🚀 Diffusion Model for Scene Synthesis
 <!-- ####  Training 
@@ -48,7 +46,8 @@ sh run/train_livingroom.sh exp_dir
 # for example:
 # sh run/train_livingroom.sh outputs/livingroom
 ``` -->
-
+#### Pretrained Weight
+The pretrained weight of PhyScene can be downloaded [here](https://drive.google.com/drive/folders/1VKtoB68dAerkfWM1n9rMi9tSa4R3O4kg?usp=drive_link).
 #### Evaluation
 1) Generate scenes (save as json file) and test CKL & physical metrics.
 ```
