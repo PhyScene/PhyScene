@@ -78,8 +78,10 @@ class ThreedFutureDataset(object):
             objs.append(oi)
 
 
-        ind = np.lexsort( (mses_feat,mses_feat) )
+        ind = np.lexsort( (mses_size,mses_feat) )
         return objs[ ind[0] ]
+    
+    
 
     @classmethod
     def from_dataset_directory(
