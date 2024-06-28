@@ -196,7 +196,8 @@ def calc_bbox_masks(bbox,class_labels,image,image_size,scale,robot_width,floor_p
         cv2.fillPoly(box_wall_mask, [box_points], (0, 255, 0))
         # cv2.imwrite("debug1.png", box_wall_mask)
         box_wall_mask = box_wall_mask[:,:,1]==255
-        if (box_wall_mask*(1-floor_plan_mask)).sum()>0:
+
+        if (box_wall_mask*(255-floor_plan_mask)).sum()>0:
             box_wall_count+=1
         # cv2.imwrite("debug2.png", floor_plan_mask)
 
@@ -212,7 +213,6 @@ def calc_bbox_masks(bbox,class_labels,image,image_size,scale,robot_width,floor_p
         st_element = np.ones((3, 3), dtype=bool)
         box_mask = binary_dilation((box_mask[:, :, 1].copy()==255).astype(image.dtype), st_element)
         box_masks.append(box_mask)
-        # cv2.imwrite("debug.png", box_mask)
     return box_masks, handle_points, box_wall_count, image
 
 def map_to_image_coordinate(point, scale, image_size):
@@ -249,8 +249,8 @@ def calc_wall_overlap(synthesized_scenes, floor_plan_lst, floor_plan_centroid_li
             
         vertices, faces = floor_plan
         vertices = vertices - floor_plan_centroid
-        # vertices = vertices[:, 0::2]
-        vertices = vertices[:, :2]
+        vertices = vertices[:, 0::2]
+        # vertices = vertices[:, :2]
         scale = np.abs(vertices).max()+0.2
 
         image_size = 256
@@ -281,6 +281,7 @@ def calc_wall_overlap(synthesized_scenes, floor_plan_lst, floor_plan_centroid_li
         # cv2.imwrite("debug.png", image)
         # breakpoint()
         walkable_map = image[:, :, 0].copy()
+        # cv2.imwrite("debug.png", walkable_map)
         num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(
             walkable_map, connectivity=8)
         # 遍历每个连通域
@@ -297,18 +298,18 @@ def calc_wall_overlap(synthesized_scenes, floor_plan_lst, floor_plan_centroid_li
         accessable_rate_list.append(accessable_rate)
         box_count += len(box_masks)
         
-        accessable_handle_rate = 0
-        for label in range(1, num_labels):
-            mask = np.zeros_like(walkable_map)
-            mask[labels == label] = 1
-            accessable_handle_count = 0
-            for handle_point in handle_points:
-                # breakpoint()
-                handle_point_int = np.round(handle_point).astype(int)
-                if 0<=handle_point_int[1]<image_size and 0<=handle_point_int[0]<image_size and mask[handle_point_int[0], handle_point_int[1]]>0:
-                    accessable_handle_count+=1
-            accessable_handle_rate += accessable_handle_count/(len(handle_points)*mask.sum()+0.00001)/(labels!=0).sum()
-        accessable_handle_rate_list.append(accessable_handle_rate)
+        # accessable_handle_rate = 0
+        # for label in range(1, num_labels):
+        #     mask = np.zeros_like(walkable_map)
+        #     mask[labels == label] = 1
+        #     accessable_handle_count = 0
+        #     for handle_point in handle_points:
+        #         # breakpoint()
+        #         handle_point_int = np.round(handle_point).astype(int)
+        #         if 0<=handle_point_int[1]<image_size and 0<=handle_point_int[0]<image_size and mask[handle_point_int[0], handle_point_int[1]]>0:
+        #             accessable_handle_count+=1
+        #     accessable_handle_rate += accessable_handle_count/(len(handle_points)*mask.sum()+0.00001)/(labels!=0).sum()
+        # accessable_handle_rate_list.append(accessable_handle_rate)
 
         #walkable map area rate
         if calc_object_area:
@@ -321,16 +322,16 @@ def calc_wall_overlap(synthesized_scenes, floor_plan_lst, floor_plan_centroid_li
     # print('walkable_metric_list:', walkable_metric_list)
     walkable_average_rate = sum(walkable_metric_list)/len(walkable_metric_list)
     accessable_rate = sum(accessable_rate_list)/len(accessable_rate_list)
-    accessable_handle_rate = sum(accessable_handle_rate_list)/len(accessable_handle_rate_list)
+    # accessable_handle_rate = sum(accessable_handle_rate_list)/len(accessable_handle_rate_list)
     box_wall_rate = box_wall_count/box_count
     
     print('walkable_average_rate:', walkable_average_rate)
     print('accessable_rate:', accessable_rate)
-    print('accessable_handle_rate:', accessable_handle_rate)
+    # print('accessable_handle_rate:', accessable_handle_rate)
     print('box_wall_rate:', box_wall_rate)
     if calc_object_area:
         print('object_area_ratio:', object_area_ratio)
-        return walkable_average_rate, accessable_rate,box_wall_rate, object_area_ratio
+        return walkable_average_rate, accessable_rate, box_wall_rate, object_area_ratio
     else:
-        return walkable_average_rate, accessable_rate,box_wall_rate
+        return walkable_average_rate, accessable_rate, box_wall_rate
 

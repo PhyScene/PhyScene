@@ -31,6 +31,7 @@ def get_textured_objects(bbox_params_t, objects_dataset, gapartnet_dataset, clas
     scene_info = {"ThreedFront":dict(),"GPN":dict()}
     for data in ["3dfront","gpn"]:
         for j in range(bbox_params_t.shape[1]):
+
             query_label = classes[bbox_params_t[0, j, :class_num].argmax(-1)]  #TODO
             translation = bbox_params_t[0, j, class_num:class_num+3]
             query_size = bbox_params_t[0, j, class_num+3:class_num+6]
@@ -198,6 +199,197 @@ def get_textured_objects(bbox_params_t, objects_dataset, gapartnet_dataset, clas
                                                         "theta": float(theta), \
                                                         "position": (translation-centroid).tolist(), \
                                                         "centroid": centroid.tolist()})
+
+    return renderables, trimesh_meshes, furniture_names, renderables_remesh, scene_info
+
+def get_textured_objects_rescale(bbox_params_t, objects_dataset, gapartnet_dataset, classes, cfg = None):
+    # For each one of the boxes replace them with an object
+    renderables = []
+    renderables_remesh = []
+    
+    trimesh_meshes = []
+    use_feature = False #cfg.task.dataset.use_feature
+    class_num = cfg.task.dataset.class_num
+    furniture_names = []
+    matrial_save = None
+    texture_color_lst = []
+    scene_info = {"ThreedFront":dict(),"GPN":dict()}
+    for data in ["3dfront","gpn"]:
+        for j in range(bbox_params_t.shape[1]):
+            
+            query_label = classes[bbox_params_t[0, j, :class_num].argmax(-1)]  #TODO
+            translation = bbox_params_t[0, j, class_num:class_num+3]
+            query_size = bbox_params_t[0, j, class_num+3:class_num+6]
+            
+            theta = bbox_params_t[0, j, class_num+6]
+            query_objfeat = bbox_params_t[0, j, class_num+7:]
+            
+            # MapThreedfuture2gparnet = dict()
+            
+            if query_label == 'empty':
+                continue
+            if data == "3dfront" and (gapartnet_dataset==None or query_label not in MapThreedfuture2gparnet):                    
+                if use_feature:
+                    furniture = objects_dataset.get_closest_furniture_to_objfeats_and_size(
+                        query_label, query_objfeat, query_size
+                    )
+                else:
+                    furniture = objects_dataset.get_closest_furniture_to_box(
+                        query_label, query_size
+                    )
+                # scale1 = furniture.scale 
+                scale = query_size/furniture.size_recal() * furniture.scale
+                rot = (theta/math.pi*180) % 360
+                print("3D FUTURE ",furniture.label,furniture.model_jid, rot)
+                furniture_names.append(furniture.label)
+                
+                # Load the furniture and scale it as it is given in the dataset
+                #raw mesh
+                raw_mesh = TexturedMesh.from_file(furniture.raw_model_path)
+                raw_mesh.scale(scale)
+
+                # Compute the centroid of the vertices in order to match the
+                # bbox (because the prediction only considers bboxes)
+                bbox = raw_mesh.bbox
+                # centroid = (bbox[0] + bbox[1])/2
+                centroid = (bbox[0] + bbox[1])/2*scale
+                centroid4TV = [centroid[0]*np.cos(theta)-centroid[2]*np.sin(theta),
+                               centroid[1],
+                               centroid[0]*np.sin(theta)+centroid[2]*np.cos(theta)]
+
+                # Extract the predicted affine transformation to position the
+                # mesh
+                R = np.zeros((3, 3))
+                R[0, 0] = np.cos(theta)
+                R[0, 2] = -np.sin(theta)
+                R[2, 0] = np.sin(theta)
+                R[2, 2] = np.cos(theta)
+                R[1, 1] = 1.
+
+                # Apply the transformations in order to correctly position the mesh
+                raw_mesh.affine_transform(t=-centroid)
+                raw_mesh.affine_transform(R=R, t=translation)
+                renderables.append(raw_mesh)
+
+
+                #load remesh model for collision rate
+                raw_mesh = TexturedMesh.from_file(furniture.remesh_model_path)
+                raw_mesh.scale(scale)
+
+                # Apply the transformations in order to correctly position the mesh
+                raw_mesh.affine_transform(t=-centroid)
+                raw_mesh.affine_transform(R=R, t=translation)
+                renderables_remesh.append(raw_mesh)
+
+                # Create a trimesh object for the same mesh in order to save
+                # everything as a single scene
+                tr_mesh = trimesh.load(furniture.raw_model_path, force="mesh")
+                tr_mesh.visual.material.image = Image.open(
+                    furniture.texture_image_path
+                )
+                tr_mesh.vertices *= scale
+                tr_mesh.vertices -= centroid
+                tr_mesh.vertices[...] = tr_mesh.vertices.dot(R) + translation
+                trimesh_meshes.append(tr_mesh)
+                
+                if furniture.model_jid not in scene_info["ThreedFront"]:
+                    scene_info["ThreedFront"][furniture.model_jid]  =[]
+                scene_info["ThreedFront"][furniture.model_jid].append({"path":furniture.raw_model_path, \
+                                                                    #    "scale":scale,\
+                                                                "scale": [float(s) for s in scale.tolist()], \
+                                                                "size": furniture.size.tolist(), \
+                                                                "label": furniture.label, \
+                                                                "query_label": query_label, \
+                                                                "query_size": [float(s/2) for s in query_size.tolist()],\
+                                                                "theta": float(theta), \
+                                                                "position": (translation-np.array(centroid4TV)).tolist(),\
+                                                                "centroid": centroid4TV})
+
+            elif data=="gpn" and not (gapartnet_dataset==None or query_label not in MapThreedfuture2gparnet):
+               
+                furniture = gapartnet_dataset.get_closest_furniture_to_box_normsize(
+                        query_label, query_size
+                    )
+                if furniture.model_jid == "22367":
+                    a = 1
+                scale = furniture.scale * query_size/furniture.size * 2
+                print("GPN ",furniture.label,furniture.model_jid)
+                furniture_names.append(furniture.label)
+
+                # Compute the centroid of the vertices in order to match the
+                # bbox (because the prediction only considers bboxes)
+                bbox = furniture.bbox
+                # centroid = (bbox[0] + bbox[1])/2
+                centroid = (bbox[0] + bbox[1])/2*scale
+                centroid4TV = [centroid[0]*np.cos(theta)-centroid[2]*np.sin(theta),
+                               centroid[1],
+                               centroid[0]*np.sin(theta)+centroid[2]*np.cos(theta)]
+
+                # Extract the predicted affine transformation to position the
+                # mesh
+                R = np.zeros((3, 3))
+                R[0, 0] = np.cos(theta)
+                R[0, 2] = -np.sin(theta)
+                R[2, 0] = np.sin(theta)
+                R[2, 2] = np.cos(theta)
+                R[1, 1] = 1.
+
+                ####raw model
+                GPN_renderables = []
+                for raw_model_path in furniture.raw_model_path:
+                    # Load the furniture and scale it as it is given in the dataset
+                    raw_mesh = TexturedMesh.from_file(raw_model_path)         
+                    raw_mesh.scale(scale)
+                
+                    # Apply the transformations in order to correctly position the mesh
+                    raw_mesh.affine_transform(t=-centroid)
+                    # raw_mesh.affine_transform(R=R)
+                    raw_mesh.affine_transform(R=R, t=translation)
+
+                    try:
+                        GPN_renderables += raw_mesh.renderables
+                    except:
+                        GPN_renderables.append(raw_mesh)
+
+                if len(GPN_renderables) == 1:
+                    renderables.append(GPN_renderables[0])
+                else:
+                    renderables.append(RenderableCollection(GPN_renderables))
+
+                ####remesh model
+                #load remesh model for collision rate
+                GPN_renderables = []
+                for raw_model_path in furniture.sequence_model_path:
+                    # Load the furniture and scale it as it is given in the dataset
+                    raw_mesh = TexturedMesh.from_file(raw_model_path)                
+                    raw_mesh.scale(scale)
+
+                    # Apply the transformations in order to correctly position the mesh
+                    raw_mesh.affine_transform(t=-centroid)
+                    raw_mesh.affine_transform(R=R, t=translation)
+
+                    try:
+                        GPN_renderables += raw_mesh.renderables
+                    except:
+                        GPN_renderables.append(raw_mesh)
+
+
+                if len(GPN_renderables) == 1:
+                    renderables_remesh.append(GPN_renderables[0])
+                else:
+                    renderables_remesh.append(RenderableCollection(GPN_renderables))
+                if furniture.model_jid not in scene_info["GPN"]:
+                    scene_info["GPN"][furniture.model_jid]  =[]
+                #final size = query size = scale*size
+                scene_info["GPN"][furniture.model_jid].append({"path":furniture.raw_model_path, \
+                                                        "scale": [float(s) for s in scale.tolist()], \
+                                                        "size": [float(s/2) for s in furniture.size], \
+                                                        "label": furniture.label, \
+                                                        "query_label": query_label,\
+                                                        "query_size": [float(s) for s in query_size.tolist()],\
+                                                        "theta": float(theta), \
+                                                        "position": (translation-np.array(centroid4TV)).tolist(),\
+                                                        "centroid": centroid4TV})
 
                 # for raw_model_path in furniture.raw_model_path:
                 #     # Load the furniture and scale it as it is given in the dataset
