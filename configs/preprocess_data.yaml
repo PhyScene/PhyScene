@@ -36,6 +36,6 @@ ai2thor:
 
 GAPartNet:
   pickled_GPN_dir: "/home/yandan/workspace/GAPartNet/dataset"
-  GPN_open_ratio: "/home/yandan/workspace/Scene-Diffuser-New/data/GPN_open_ratio.json"
+  GPN_open_ratio: "/home/yandan/workspace/PhyScene/data/GPN_open_ratio.json"
   path_to_models: "/home/yandan/dataset/partnet_mobility_part/"
   ID_PATH: '/home/yandan/workspace/GAPartNet/dataset/render_tools/meta/partnet_all_id_list.txt'

@@ -283,7 +283,7 @@ class GAPartNetDataset(Dataset):
         else:
             self.model_id_list = self.model_id_list_train+self.model_id_list_val
 
-        self.save_valid_expand_ratios(cfg)
+        # self.save_valid_expand_ratios(cfg)
         if remove_largeopen:
 
             #### #filter by open ratio
@@ -313,21 +313,20 @@ class GAPartNetDataset(Dataset):
         return
 
         
+    # def save_valid_expand_ratios(self,cfg):
+    #     GPN_open_ratio = dict()
+    #     for obj in self.objects:
+    #         # train_objects[obj.model_jid] = obj
+    #         if obj.label not in ["StorageFurniture","Table"]:
+    #             continue
+    #         if obj.expand_ratio.max()>1.5:
+    #             continue
+    #         GPN_open_ratio[obj.model_jid] = dict()
+    #         GPN_open_ratio[obj.model_jid]["class"] = obj.label
+    #         GPN_open_ratio[obj.model_jid]["ratio"] = obj.expand_ratio.tolist()   
 
-    def save_valid_expand_ratios(self,cfg):
-        GPN_open_ratio = dict()
-        for obj in self.objects:
-            # train_objects[obj.model_jid] = obj
-            if obj.label not in ["StorageFurniture","Table"]:
-                continue
-            if obj.expand_ratio.max()>1.5:
-                continue
-            GPN_open_ratio[obj.model_jid] = dict()
-            GPN_open_ratio[obj.model_jid]["class"] = obj.label
-            GPN_open_ratio[obj.model_jid]["ratio"] = obj.expand_ratio.tolist()   
-
-        with open(cfg.GAPartNet.GPN_open_ratio, "w") as myfile:
-            json.dump(GPN_open_ratio,myfile,indent=4)
+    #     with open(cfg.GAPartNet.GPN_open_ratio, "w") as myfile:
+    #         json.dump(GPN_open_ratio,myfile,indent=4)
             
     def __len__(self):
         return len(self.objects)
@@ -405,7 +404,8 @@ class GAPartNetDataset(Dataset):
 
         mses = {}
         for i, oi in enumerate(objects):
-            mses[oi] = np.sum((oi.size/max(oi.size) - query_size/max(query_size))**2, axis=-1)
+            # mses[oi] = np.sum((oi.size/max(oi.size) - query_size/max(query_size))**2, axis=-1)
+            mses[oi] = np.sum((oi.size/np.linalg.norm(oi.size) - query_size/np.linalg.norm(query_size))**2, axis=-1)
         sorted_mses = [k for k, v in sorted(mses.items(), key=lambda x:x[1])]
         return sorted_mses[0]
     

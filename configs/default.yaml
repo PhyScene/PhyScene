@@ -54,7 +54,7 @@ ai2thor:
   path_to_ai2thor: /home/yandan/workspace/ai2thor/ExportedObj-room-rightxyz #_blender_convert
   path_to_center_info: /home/yandan/workspace/PhyScene/ai2thor/center.json
   path_to_mask: /home/yandan/workspace/PhyScene/ai2thor/mask
-  path_to_result: /home/yandan/workspace/PhyScene/ai2thor/generate_bbox
+  path_to_result: /home/yandan/workspace/PhyScene/ai2thor/generate_gpt
 
 ThreeDFRONT:
   path_to_result: /home/yandan/workspace/PhyScene/3D_front/generate_filterGPN_clean
@@ -62,8 +62,8 @@ ThreeDFRONT:
 
 GAPartNet:
   pickled_GPN_dir: "/home/yandan/workspace/GAPartNet/dataset"
-  GPN_open_ratio: "/home/yandan/workspace/Scene-Diffuser-New/data/GPN_open_ratio.json"
-  GPN_good_idx: "/home/yandan/workspace/Scene-Diffuser-New/data/GPN_good_idx.json"
+  GPN_open_ratio: "/home/yandan/workspace/PhyScene/data/GPN_open_ratio.json"
+  GPN_good_idx: "/home/yandan/workspace/PhyScene/data/GPN_good_idx.json"
   path_to_models: "/home/yandan/dataset/partnet_mobility_part/"
   ID_PATH: '/home/yandan/workspace/GAPartNet/dataset/render_tools/meta/partnet_all_id_list.txt'
 
