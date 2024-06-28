@@ -29,11 +29,12 @@ from datasets.threed_future_dataset import ThreedFutureDataset
 from models.networks import build_network
 from utils.utils_preprocess import render as render_top2down
 from utils.utils_preprocess import room_outer_box_from_obj
-from utils.utils import get_textured_objects, get_bbox_objects
+from utils.utils import get_textured_objects_rescale, get_bbox_objects
 from scripts.eval.calc_ckl import show_renderables
 from utils.overlap import calc_wall_overlap,calc_overlap_rotate_bbox,calc_overlap_rotate_bbox_doors
 from scripts.eval.calc_ckl import init_render_scene, calc_overlap
 import json
+from scripts.eval.calc_ckl import show_renderables
 
 def categorical_kl(p, q):
     return (p * (np.log(p + 1e-6) - np.log(q + 1e-6))).sum()
@@ -142,8 +143,8 @@ def evaluate(network,dataset,cfg,raw_dataset,ground_truth_scenes,device,vis:True
     #         roomname = roomname[0]+"_"+roomname[1]+"/"+roomname[2]+"_"+roomname[3]+".obj"
     #         good_room.append(roomname)
 
-    # for i in range(268,len(center_info)//batch_size+1):
-    for i in range(len(center_info)//batch_size+1):
+    for i in range(33,len(center_info)//batch_size+1):
+    # for i in range(len(center_info)//batch_size+1):
         print("{} / {}:".format(
             i, len(center_info)//batch_size+1)
         )
@@ -167,7 +168,7 @@ def evaluate(network,dataset,cfg,raw_dataset,ground_truth_scenes,device,vis:True
             #     obj_name = good_room[idx]
             else:
                 break
-            # obj_name = "House_35/room_7.obj"
+            # obj_name = "House_6171/room_4.obj"
             roomType = center_info[obj_name]["roomType"]
             filter_fn = cfg.task.dataset.filter_fn
             if filter_fn =="threed_front_diningroom":
@@ -198,6 +199,9 @@ def evaluate(network,dataset,cfg,raw_dataset,ground_truth_scenes,device,vis:True
             floor_plan =  Mesh.from_file(obj_path)
             center = (floor_plan.bbox[0]+floor_plan.bbox[1])/2
             vertices, faces = floor_plan.to_points_and_faces()
+            #change order
+            center = [center[0],center[2],center[1]]
+            vertices = vertices[:,[0,2,1]]
             
             floor_plan_mask_list.append([vertices.copy(), faces.copy()])
             floor_plan_centroid_list.append(center)
@@ -215,7 +219,7 @@ def evaluate(network,dataset,cfg,raw_dataset,ground_truth_scenes,device,vis:True
             floor_plan = TexturedMesh.from_faces(
                 vertices=vertices,
                 uv=uv,
-                faces=faces,
+                faces=faces[:,::-1],
                 material=Material.with_texture_image("demo/floor_plan_texture_images/floor_00003.jpg")
             )
 
@@ -321,7 +325,7 @@ def export_scene_info(boxes,dataset,cfg,center_info, mask_name_lst=[],floor_plan
 
     if retrieve:
         # [1] retrieve objects
-        renderables, trimesh_meshes, _,_ , scene_info = get_textured_objects(
+        renderables, trimesh_meshes, _,_ , scene_info = get_textured_objects_rescale(
             bbox_param, objects_dataset, gapartnet_dataset, classes, cfg
         )
         path_to_json = "{}/{}".format(
@@ -334,19 +338,32 @@ def export_scene_info(boxes,dataset,cfg,center_info, mask_name_lst=[],floor_plan
 
         if vis:
             floor_plan = floor_plan_lst[i]
-            import math
-            theta = math.pi*3/2
-            R = np.zeros((3, 3))
-            R[2, 2] = np.cos(theta)
-            R[2, 1] = -np.sin(theta)
-            R[1, 2] = np.sin(theta)
-            R[1, 1] = np.cos(theta)
-            R[0, 0] = 1.
-            floor_plan.affine_transform(R=R)
+            # import math
+            # theta = math.pi*3/2
+            # R = np.zeros((3, 3))
+            # R[2, 2] = np.cos(theta)
+            # R[2, 1] = -np.sin(theta)
+            # R[1, 2] = np.sin(theta)
+            # R[1, 1] = np.cos(theta)
+            # R[0, 0] = 1.
+            # floor_plan.affine_transform(R=R)
             renderables += [floor_plan]
-            from scripts.eval.calc_ckl import show_renderables
+            
             show_renderables(renderables)
-
+        else:
+            scene_top2down = init_render_scene(cfg,gray=True,room_side=6.2,size=(512,512))
+            path_to_image = "{}/{}".format(
+                cfg.ai2thor.path_to_result,
+            mask_name_lst[i][:-4]+"_"+roomtype+".png"
+            )
+            render_top2down(
+                scene_top2down,
+                renderables,
+                color=None,
+                mode="shading",
+                frame_path=path_to_image,
+            )
+            print("saving image into  ",path_to_image)
     else:
         # [2] only compute bbox
         obj = "_".join(houseinfo[2:])+".obj"
@@ -401,7 +418,7 @@ def show_scene(boxes,objects_dataset,dataset,cfg,floor_plan_lst,tr_floor, return
 
         # # [1] retrieve objects
         if not return_bbox:
-            renderables, trimesh_meshes, _,_ , scene_info = get_textured_objects(
+            renderables, trimesh_meshes, _,_ , scene_info = get_textured_objects_rescale(
                 bbox_param, objects_dataset, gapartnet_dataset, classes, cfg
             )
            
