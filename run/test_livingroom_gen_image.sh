@@ -7,7 +7,7 @@ python calc_ckl.py hydra/job_logging=none hydra/hydra_logging=none \
                 task.evaluator.weight_file=${save_dir}/model_134000 \
                 evaluation.generate_result_json=false \
                 evaluation.jsonname="livingroom.json" \
-                evaluation.overlap_type="rotated_bbox" \
+                evaluation.overlap_type="mesh" \
                 evaluation.visual=true \
                 evaluation.render2img=true \
                 evaluation.save_walkable_map=true \
