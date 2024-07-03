@@ -6,6 +6,8 @@
 
 Download 3D FRONT and 3D FUTURE dataset with the instruction in [this website](https://tianchi.aliyun.com/specials/promotion/alibaba-3d-scene-dataset).
 
+The remeshed 3D FUTURE models can be found [here](https://huggingface.co/datasets/yangyandan/PhyScene/tree/main/dataset).
+
 💻 Articulated object: We utilize articulated objects in **GAPartNet** dataset for the generated scene.
 
 To download GAPartNet dataset, please fill out [this form](https://docs.google.com/forms/d/e/1FAIpQLSftYKN2O72MEgiFhJrn5xCRjArgVmBA6JK7xSkmlX9yfZhFxg/viewform?usp=sf_link).
@@ -13,7 +15,7 @@ To download GAPartNet dataset, please fill out [this form](https://docs.google.c
 ### Preprocess data
 You can preprocess the data from scratch with the following steps. 
 
-Or you can download the preprocessed data [here](https://drive.google.com/file/d/1ilHSDaavfUN2Vxs-YaTx-EsBqG78Eper/view?usp=drive_link)
+Or you can download the preprocessed data [here](https://huggingface.co/datasets/yangyandan/PhyScene/tree/main/dataset).
 
 #### Pickle scene & object dataset
 ```
