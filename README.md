@@ -47,7 +47,7 @@ sh run/train_livingroom.sh exp_dir
 # sh run/train_livingroom.sh outputs/livingroom
 ``` -->
 #### Pretrained Weight
-The pretrained weight of PhyScene can be downloaded [here](https://drive.google.com/drive/folders/1VKtoB68dAerkfWM1n9rMi9tSa4R3O4kg?usp=drive_link).
+The pretrained weight of PhyScene can be downloaded [here](https://huggingface.co/datasets/yangyandan/PhyScene/blob/main/weights/livingroom/model_134000).
 #### Evaluation
 1) Generate scenes (save as json file) and test CKL & physical metrics.
 ```

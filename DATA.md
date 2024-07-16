@@ -41,6 +41,7 @@ sh run/objautoencoder.sh save_dir experiment_tag
 ```
 You will get geometric latent feature, saved as ```raw_model_norm_pc_lat32.npz``` for each object.
 
+The pretrained weight of the Autoencoder can be downloaded [here](https://huggingface.co/datasets/yangyandan/PhyScene/blob/main/weights/autoencoder/model_02900).
 #### Preprocess scene dataset of 3D FRONT 
 ```
 sh run/preprocess_data.sh save_dir

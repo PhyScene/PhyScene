@@ -31,7 +31,7 @@ visual_ablation/
 wandb/
 models/loss/cuda_op
 *.npz
-*.json
+.json
 *.mtl
 *.obj
 #*.yaml
