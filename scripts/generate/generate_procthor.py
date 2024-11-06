@@ -80,13 +80,15 @@ def main(cfg: DictConfig) -> None:
         device = torch.device("cpu")
     print("Running code on", device)
 
+    path_to_bounds = cfg.task.dataset.path_to_bounds
     raw_dataset, dataset = get_dataset_raw_and_encoded(
         config.task["dataset"],
         filter_fn=filter_function(
             config.task["dataset"],
             split=["train","val","test"]
         ),
-        split=["train","val","test"]
+        split=["train","val","test"],
+        path_to_bounds=path_to_bounds
     )
 
     print("Loaded {} scenes with {} object types:".format(
