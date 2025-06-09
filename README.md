@@ -4,7 +4,7 @@
   <b><i>CVPR 2024 Highlight </i> ⭐</b>
 </h2>
  <div align="center" margin-bottom="6em">
-  <a target="_blank" href="https://scholar.google.com/citations?user=H6OwSzsAAAAJ">Yandan Yang</a><sup>✶</sup>,
+  <a target="_blank" href="https://yandanyang.github.io/">Yandan Yang</a><sup>✶</sup>,
   <a target="_blank" href="https://buzz-beater.github.io/">Baoxiong Jia</a><sup>✶</sup>,
   <a target="_blank" href="https://github.com/peryion">Peiyuan Zhi</a>,
   <a target="_blank" href="https://siyuanhuang.com/">Siyuan Huang</a>
